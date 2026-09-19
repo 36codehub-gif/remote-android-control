@@ -24,16 +24,24 @@
     let ws;
     function connect() {
       const devId = document.getElementById('deviceId').value;
-      // Is URL me apna hosted server address dalein
-      ws = new WebSocket('wss://your-relay-server.onrender.com'); 
+      
+      // Updated live Render WebSocket URL
+      ws = new WebSocket('wss://remote-android-control.onrender.com'); 
       
       ws.onopen = () => {
         alert('Connected to Signaling Server');
       };
+
+      ws.onerror = (err) => {
+        console.error('WebSocket Error:', err);
+      };
     }
 
     function sendTap(e) {
-      if(!ws) return;
+      if(!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('Server disconnect hai! Pehle Connect dabaen.');
+        return;
+      }
       const rect = e.target.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
