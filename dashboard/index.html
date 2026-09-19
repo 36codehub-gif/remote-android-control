@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remote Mobile Controller</title>
+  <style>
+    body { background: #121212; color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+    #screen-box { width: 320px; height: 640px; background: #000; border: 2px solid #00ff88; margin: 20px auto; position: relative; touch-action: none; }
+    .btn { padding: 10px 20px; background: #00ff88; border: none; font-weight: bold; margin: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Android Remote Control</h2>
+  <div>
+    <input type="text" id="deviceId" placeholder="Enter Target Device ID">
+    <button class="btn" onclick="connect()">Connect</button>
+  </div>
+  
+  <div id="screen-box" onclick="sendTap(event)">
+    <p style="margin-top: 50%;">Screen View Area</p>
+  </div>
+
+  <script>
+    let ws;
+    function connect() {
+      const devId = document.getElementById('deviceId').value;
+      // Is URL me apna hosted server address dalein
+      ws = new WebSocket('wss://your-relay-server.onrender.com'); 
+      
+      ws.onopen = () => {
+        alert('Connected to Signaling Server');
+      };
+    }
+
+    function sendTap(e) {
+      if(!ws) return;
+      const rect = e.target.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      
+      const devId = document.getElementById('deviceId').value;
+      ws.send(JSON.stringify({
+        type: 'COMMAND',
+        deviceId: devId,
+        payload: { action: 'TAP', x: x, y: y }
+      }));
+    }
+  </script>
+</body>
+</html>
